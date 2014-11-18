@@ -199,13 +199,26 @@ function addInboxTask() {
 * sets a task as completed
 *
 */
-function completeTask(id) {
-	var complete;
+function changeStatus(id, status) {
+	var done = null;
+
+	// if a status is passed, then set it
+	if (typeof status !== "undefined") {
+		done = status;
+	}
 
 	// search which item to complete
 	$.each(app.tasks, function(index) {
 		if (app.tasks[index].id == id) {
-			app.tasks[index].done = "true";
+			// if no status is set, then toggle
+			if (done == null) {
+				switch (app.tasks[index].done) {
+					case "true": done = "false"; break;
+					case "false": done = "true"; break;
+				}
+			}
+
+			app.tasks[index].done = done;
 		}
 	});
 	
@@ -241,8 +254,7 @@ $(document).ready(function() {
 	$("#task-list").on("click", ".task-action-complete", function(event) {
 		event.preventDefault();
 		var task = $(this).data("task");
-		completeTask(task);
-		// $("#task-" + task).remove();
+		changeStatus(task);
 	});
 
 	// show advanced options
@@ -320,7 +332,7 @@ $(document).ready(function() {
 	// archive view — render articles differently
 	} else if (path.search('archive') !== -1) { 
 		for(x = 0; x < app.tasks.length; x++) {
-			renderTask(app.tasks[x], "complete");
+			renderTask(app.tasks[x], "complete", 1);
 		}
 	// inbox
 	} else {
