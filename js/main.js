@@ -80,12 +80,22 @@ if (localStorage["tasks"] != undefined) {
 * task views throughout the application.
 *
 * data - an array of tasks
+* which - "complete" for done tasks, "incomplete" for due tasks
+* depth - depth of the link
 * return void
 */
-function renderTask(data, which) {
+function renderTask(data, which, depth) {
 	// set default tasks to incomplete
 	var which = typeof which !== 'undefined' ? which : "incomplete";
+	var depth = typeof depth == 'undefined' ? 0 : depth;
+	var folder = "";
 	var exit = false;
+	var x = 0;
+
+	while(x < depth) {
+		folder = folder + "../";
+		x++;
+	}
 
 	// make sure only the appropriate tasks are rendered
 	switch(which) {
@@ -132,7 +142,7 @@ function renderTask(data, which) {
 
 	task = $(document.createElement("a"))
 		.addClass("task")
-		.attr("href", "details/#" + data.id) // @TODO: only works at root level
+		.attr("href", folder + "details/#" + data.id) // @TODO: only works at root level
 		.html(title)
 		.appendTo(item);
 
