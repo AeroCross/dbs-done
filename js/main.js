@@ -110,11 +110,17 @@ function renderTask(data, which) {
 		.addClass("list-group-item")
 		.attr("id", "task-" + data.id);
 
+	if (data.done == "true") {
+		icon = "check";
+	} else {
+		icon = "circle-o";
+	}
+
 	action = $(document.createElement("a"))
 		.addClass("task task-action task-action-complete")
 		.attr("href", "#")
 		.attr("data-task", data.id)
-		.html('<i class="fa fa-circle-o fa-2x fa-fw"></i>').appendTo(item);
+		.html('<i class="fa fa-' + icon + ' fa-2x fa-fw"></i>').appendTo(item);
 
 	if (data.note != "") {
 		title = data.title + "<br /><small>" + data.note + "</small>";
@@ -126,7 +132,7 @@ function renderTask(data, which) {
 
 	task = $(document.createElement("a"))
 		.addClass("task")
-		.attr("href", "details/#" + data.id)
+		.attr("href", "details/#" + data.id) // @TODO: only works at root level
 		.html(title)
 		.appendTo(item);
 
