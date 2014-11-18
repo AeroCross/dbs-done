@@ -1,4 +1,4 @@
-body { padding-top: 70px; }
+body { padding-top: 70px; background: url("../img/bg.png");}
 
 .title {margin-bottom: 0px;}
 .subtitle {display: block; margin-bottom: 20px}
