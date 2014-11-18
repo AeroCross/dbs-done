@@ -144,7 +144,6 @@ function addTask(data) {
 	}
 
 	data.id = generateHash();
-	data.done = false;
 
 	if (data.note == undefined) {
 		data.note = "";
@@ -190,7 +189,7 @@ function completeTask(id) {
 	// search which item to complete
 	$.each(app.tasks, function(index) {
 		if (app.tasks[index].id == id) {
-			app.tasks[index].done = true;
+			app.tasks[index].done = "true";
 		}
 	});
 	
@@ -212,10 +211,6 @@ function updateStorage() {
 
 // load them and do stuff
 $(document).ready(function() {
-	for(x = 0; x < app.tasks.length; x++) {
-		renderTask(app.tasks[x]);
-	}
-
 	// adding tasks from inbox
 	$("#add-task").on('click', function() {
 		addInboxTask();
@@ -305,5 +300,18 @@ $(document).ready(function() {
 		$("#save").on("click", function() {
 			updateTask(getCurrentData());
 		});
+
+	// archive view — render articles differently
+	} else if (path.search('archive') !== -1) { 
+		for(x = 0; x < app.tasks.length; x++) {
+			renderTask(app.tasks[x], "complete");
+		}
+	// inbox
+	} else {
+		for(x = 0; x < app.tasks.length; x++) {
+			renderTask(app.tasks[x]);
+		}
 	}
+
+
 });
