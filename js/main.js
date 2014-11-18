@@ -80,12 +80,22 @@ if (localStorage["tasks"] != undefined) {
 * task views throughout the application.
 *
 * data - an array of tasks
+* which - "complete" for done tasks, "incomplete" for due tasks
+* depth - depth of the link
 * return void
 */
-function renderTask(data, which) {
+function renderTask(data, which, depth) {
 	// set default tasks to incomplete
 	var which = typeof which !== 'undefined' ? which : "incomplete";
+	var depth = typeof depth == 'undefined' ? 0 : depth;
+	var folder = "";
 	var exit = false;
+	var x = 0;
+
+	while(x < depth) {
+		folder = folder + "../";
+		x++;
+	}
 
 	// make sure only the appropriate tasks are rendered
 	switch(which) {
@@ -110,11 +120,17 @@ function renderTask(data, which) {
 		.addClass("list-group-item")
 		.attr("id", "task-" + data.id);
 
+	if (data.done == "true") {
+		icon = "check";
+	} else {
+		icon = "circle-o";
+	}
+
 	action = $(document.createElement("a"))
 		.addClass("task task-action task-action-complete")
 		.attr("href", "#")
 		.attr("data-task", data.id)
-		.html('<i class="fa fa-circle-o fa-2x fa-fw"></i>').appendTo(item);
+		.html('<i class="fa fa-' + icon + ' fa-2x fa-fw"></i>').appendTo(item);
 
 	if (data.note != "") {
 		title = data.title + "<br /><small>" + data.note + "</small>";
@@ -126,7 +142,7 @@ function renderTask(data, which) {
 
 	task = $(document.createElement("a"))
 		.addClass("task")
-		.attr("href", "details/#" + data.id)
+		.attr("href", folder + "details/#" + data.id) // @TODO: only works at root level
 		.html(title)
 		.appendTo(item);
 
@@ -144,7 +160,6 @@ function addTask(data) {
 	}
 
 	data.id = generateHash();
-	data.done = false;
 
 	if (data.note == undefined) {
 		data.note = "";
@@ -184,13 +199,26 @@ function addInboxTask() {
 * sets a task as completed
 *
 */
-function completeTask(id) {
-	var complete;
+function changeStatus(id, status) {
+	var done = null;
+
+	// if a status is passed, then set it
+	if (typeof status !== "undefined") {
+		done = status;
+	}
 
 	// search which item to complete
 	$.each(app.tasks, function(index) {
 		if (app.tasks[index].id == id) {
-			app.tasks[index].done = true;
+			// if no status is set, then toggle
+			if (done == null) {
+				switch (app.tasks[index].done) {
+					case "true": done = "false"; break;
+					case "false": done = "true"; break;
+				}
+			}
+
+			app.tasks[index].done = done;
 		}
 	});
 	
@@ -212,10 +240,6 @@ function updateStorage() {
 
 // load them and do stuff
 $(document).ready(function() {
-	for(x = 0; x < app.tasks.length; x++) {
-		renderTask(app.tasks[x]);
-	}
-
 	// adding tasks from inbox
 	$("#add-task").on('click', function() {
 		addInboxTask();
@@ -230,8 +254,7 @@ $(document).ready(function() {
 	$("#task-list").on("click", ".task-action-complete", function(event) {
 		event.preventDefault();
 		var task = $(this).data("task");
-		completeTask(task);
-		// $("#task-" + task).remove();
+		changeStatus(task);
 	});
 
 	// show advanced options
@@ -305,5 +328,18 @@ $(document).ready(function() {
 		$("#save").on("click", function() {
 			updateTask(getCurrentData());
 		});
+
+	// archive view — render articles differently
+	} else if (path.search('archive') !== -1) { 
+		for(x = 0; x < app.tasks.length; x++) {
+			renderTask(app.tasks[x], "complete", 1);
+		}
+	// inbox
+	} else {
+		for(x = 0; x < app.tasks.length; x++) {
+			renderTask(app.tasks[x]);
+		}
 	}
+
+
 });
